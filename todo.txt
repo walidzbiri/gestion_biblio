@@ -1,0 +1,12 @@
+// add load from csv function
+// adding searching occurences in war text
+
+- Recherche une chaine de caractères dans le livre war_and_peace.txt et retourne son
+nombre d’occurrence
+
+- Affiche les 10 mots les plus utilisés dans le livre war_and_peace.txt
+
+- Exception (pour : Document, Matériel, Adhèrent, Auteur et CSV) si : Inconnu,
+Indisponible, Max d’emprunts atteint, Pas empruntable, Déjà emprunté.
+
+// gerer auteur
