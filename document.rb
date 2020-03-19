@@ -85,9 +85,10 @@ class Livre < Volume
 
     def to_s
       return "Livre " +
-       "ISBN : #{@isbn}, "+
-       "Livre : #{@titre}, "+
-       " Auteur: #{@auteur}"
+       "ISBN: #{@isbn}, "+
+       "Titre: #{@titre}, "+
+       "Auteur: #{@auteur}, " +
+       "Disponible: #{@disponibilite},"
     end
   
 end

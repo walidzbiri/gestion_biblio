@@ -4,6 +4,7 @@ require'adherent'
 require 'document'
 require 'materiel'
 require 'csv'
+require 'exceptions'
 
 class Biblio
     attr_accessor :adherents,:documents,:materiels,:emprunts
@@ -16,17 +17,29 @@ class Biblio
 
     def get_adherent(id)
         adh = @adherents.select{ |ad| ad.id == id}.first
-        adh
+        if adh==nil
+            raise Inconnu, "ID non valide"
+        else
+            adh
+        end
     end
 
     def get_document(isbn)
         dooc = @documents.select{|doc| doc.isbn == isbn}.first
-        dooc
+        if dooc==nil
+            raise Inconnu, "ISBN non valide"
+        else
+            dooc
+        end
     end
 
     def get_materiel(id)
         matr = @materiels.select{ |mat| mat.id == id}.first
-        matr
+        if matr==nil
+            raise Inconnu, "ID non valide"
+        else
+            matr
+        end
     end
 
     def est_dans_biblio(element)
@@ -72,14 +85,52 @@ class Biblio
      end
 
     def load()
-        # define me please
+        livres = CSV.parse(File.read("livres.csv"), headers: true)
+        livres.each{|livre|
+            #puts "#{row["ISBN"]} #{row["Titre"]} #{row["Dispo"]} #{row["Auteur"]}"
+            @documents<< Livre.new(livre["ISBN"],livre["Titre"],livre["Auteur"],livre["Dispo"])
+            
+        }
+
+        pcs = CSV.parse(File.read("pc.csv"), headers: true)
+        pcs.each{|pc|
+            #puts "#{row["id"]} #{row["marque"]} #{row["os"]} #{row["disponibilite"]} #{row["enPanne"]}"
+            @materiels<< PC.new(pc["enPanne"],pc["marque"],pc["os"],pc["disponibilite"])
+        }
+
+        adherents = CSV.parse(File.read("adherents.csv"), headers: true)
+        i=0
+        adherents.each{|ad|
+            #puts "#{row["id"]} #{row["marque"]} #{row["os"]} #{row["disponibilite"]} #{row["enPanne"]}"
+            @adherents<< Adherent.new(ad["Nom"],ad["Prenom"],ad["Statut"])
+            livres=[]
+            pcs=[]
+            ad["Emprunts"].split("//").each{|emp|
+                if emp.start_with?('Livre')
+                    livres<< Livre.new(emp[/ISBN: (.*?),/m, 1],emp[/Titre: (.*?),/m, 1],emp[/Auteur: (.*?),/m, 1],emp[/Disponible: (.*?),/m, 1])
+                else
+                    pcs<< PC.new(emp[/panne: (.*?),/m, 1],emp[/Marque: (.*?),/m, 1],emp[/OS: (.*?),/m, 1],emp[/Disponible: (.*?),/m, 1])
+                end
+            }
+            livres.each{|l|
+                @adherents[i].empruntes<< l
+                @emprunts[l]=@adherents[i]
+            }
+            pcs.each{|pc|
+                @adherents[i].empruntes<< pc
+                @emprunts[pc]=@adherents[i]
+            }
+            i+=1######################""
+        }
+
     end
+
+
     def add_adherent(adherent)
         if(adherent.is_a?(Adherent))
             @adherents<<adherent
         else
-            puts "Adherent invalid"
-            exit
+            raise Inconnu, "Adherent non valide"
         end
     end
 
@@ -88,8 +139,7 @@ class Biblio
         if(document.is_a?(Document))
             @documents<<document
         else
-            puts "Document invalid"
-            exit
+            raise Inconnu, "Document non valide"
         end
     end
 
@@ -99,8 +149,7 @@ class Biblio
         if(materiel.is_a?(Materiel))
             @materiels<<materiel
         else
-            puts "Materiel invalid"
-            exit
+            raise Inconnu, "Materiel non valide"
         end
     end
 
@@ -111,8 +160,7 @@ class Biblio
             }
           @adherents.delete adherent
         else
-          puts "Adherent inconnu"
-          exit
+            raise Inconnu, "Adherent non valide"
         end
     end
 
@@ -123,8 +171,7 @@ class Biblio
         if @documents.include? doc
           @documents.delete doc
         else
-            puts "Document inconnu"
-            exit
+            raise Inconnu, "Document non valide"
         end
     end
 
@@ -133,8 +180,7 @@ class Biblio
         if @materiels.include? mat
           @materiels.delete mat
         else
-          puts "Materiel inconnu"
-          exit
+            raise Inconnu, "Materiel non valide"
         end
     end    
 

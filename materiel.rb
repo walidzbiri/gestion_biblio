@@ -38,6 +38,6 @@ class PC < Materiel
   end
 
   def to_s
-     "PC id: #{@id} panne: #{@enPanne} , Marque #{@marque}, OS : #{@os}"
+     "PC id: #{@id}, panne: #{@enPanne}, Marque: #{@marque}, OS: #{@os}, Disponible: #{@disponibilite},"
   end
 end

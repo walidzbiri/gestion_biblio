@@ -1,3 +1,6 @@
+$LOAD_PATH << File.dirname(__FILE__)
+require 'exceptions'
+
 status = ["Etudiant", "Enseignant"]
 
 class Adherent
@@ -11,19 +14,16 @@ class Adherent
         @id=Adherent.compteur_id
         @prenom = prenom
         @statut = statut
-        @statut = "Etudiant"
         @empruntes = []
         @nom=nom
     end
 
     def emprunter(item,biblio)
         if(!biblio.adherents.include?(self))
-            puts "vous etes pas un membre!"
-            exit
+            raise(Inconnu, "You are not an adherent to our Library")
         else
             if(@empruntes.length>=5)
-                puts "vous avez atteint les limites!"
-                exit
+                raise MaxEmpruntes, "You have reached the limited Times"
             else
                 if(biblio.est_dans_biblio(item))
                     if(item.isDisponible?)
@@ -31,12 +31,10 @@ class Adherent
                         biblio.emprunts[item]=self
                         item.disponibilite=false
                     else
-                        puts "l element n est pas dispo!"
-                        exit
+                        raise(DejaEmprunte, "This item is unavailable right now")
                     end
                 else
-                    puts "l element n est pas dans la biblio"
-                    exit
+                    raise(Indsiponible, "This item does not exists in Library")
                 end
             end
         end
@@ -44,16 +42,14 @@ class Adherent
 
     def rendre(item,biblio)
         if(!biblio.adherents.include?(self))
-            puts "vous etes pas un membre!"
-            exit
+            raise(Inconnu, "You are not an adherent to our Library")
         else
             if(@empruntes.include?(item))
                 @empruntes.delete(item)
                 biblio.emprunts.delete(item)
                 item.disponibilite=true
             else
-                puts "vous l avez pas encore empruntez!"
-                exit
+                raise(PasEmpruntable,"This #{item.to_s} is not borrowed yet!")
             end
         end
     end
