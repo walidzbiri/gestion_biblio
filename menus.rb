@@ -1,14 +1,13 @@
 # get rid of warnings
 $VERBOSE = nil
 $LOAD_PATH << File.dirname(__FILE__)
-
 require 'test'
 
 module Menus
 
     def Menus::menu2(bib)
-      puts " MENU 2"
-      puts "--------------"
+      puts "-------------------------------Sous Menu--------------------------------------"
+
       puts "1- Ajouter-adhérent"
       puts "2- Ajouter-Livre"
       puts "3- Ajouter-PC"
@@ -50,7 +49,7 @@ module Menus
       puts "22- Recherche une chaine de caractères dans le livre war_and_peace.txt"
       puts "23- Affiche les 10 mots les plus utilisés dans le livre war_and_peace.txt"
 
-      print "Saisir votre choix : "
+      print "Saisir votre choix: "
   
       second_choice =gets.chomp
       j = second_choice.to_i
@@ -76,19 +75,17 @@ module Menus
           end
   
         when 2
-          print "Entrer ISBN: "
-          isbn = gets.chomp.to_i
           print "Entrer le titre du livre: "
           titre= gets.chomp
           print "Choisir la disponibilité du livre: \n"
-          puts "1-Disponible"
-          puts "2-Non diponible"
+          puts "1- Disponible"
+          puts "2- Non diponible"
           print "=>"
           num = gets.chomp.to_i
           num==1 ? dispo=true  : dispo=false
           print "Entrer l'auteur du livre: "
           auteur= gets.chomp
-          l = Livre.new(isbn, titre,auteur,dispo)
+          l = Livre.new(titre,auteur,dispo)
           begin
           bib.add_Document(l)
           rescue  Inconnu => e
@@ -104,15 +101,15 @@ module Menus
           print "=>"
           num = gets.chomp.to_i
           num == 1 ? os = "Linux" : os = "Windows"
-          print "Choisir la dispo du pc: "
+          print "Choisir la dispo du pc: \n"
           puts "1-Disponible"
           puts "2-Non diponible"
           print "=>"
           num=gets.chomp.to_i
           num==1 ? dispo=true  : dispo=false
-          print "L'état du pc: "
-          puts "1 - En panne"
-          puts "2 - En marche"
+          print "L'état du pc: \n"
+          puts "1- En panne"
+          puts "2- En marche"
           print "=>"
           num2=gets.chomp.to_i
           num2==1 ? panne=true  : panne = false
@@ -166,6 +163,12 @@ module Menus
           puts "Liste des PC: "
           bib.materiels.each{|mat|
             puts mat.to_s
+          }
+        
+        when 10
+          puts "Liste ID des PC: "
+          bib.materiels.each{|mat|
+            puts mat.id
           }
   
         when 11
@@ -224,10 +227,12 @@ module Menus
               puts e.message
           rescue DejaEmprunte => d
               puts d.message
-          rescue Indsiponible => c
+          rescue Indisponible => c
               puts c.message
           rescue MaxEmpruntes => m
               puts m.message
+          rescue PasEmpruntable => pa
+              puts pa.message
           end
 
 
@@ -244,10 +249,12 @@ module Menus
               puts e.message
           rescue DejaEmprunte => d
               puts d.message
-          rescue Indsiponible => c
+          rescue Indisponible => c
               puts c.message
           rescue MaxEmpruntes => m
               puts m.message
+            rescue PasEmpruntable => pa
+              puts pa.message
           end
 
 
@@ -264,10 +271,12 @@ module Menus
               puts e.message
           rescue DejaEmprunte => d
               puts d.message
-          rescue Indsiponible => c
+          rescue Indisponible => c
               puts c.message
           rescue MaxEmpruntes => m
               puts m.message
+          rescue PasEmpruntable => pa
+              puts pa.message
           end
 
 
@@ -277,63 +286,138 @@ module Menus
           begin
               a = bib.get_adherent(id)
               print "Saisir l'ID de l'Ordinateur: "
-              id = gets.chomp
+              id = gets.chomp.to_i
               goal = bib.get_materiel(id)
               a.rendre(goal,bib)
           rescue  Inconnu => e
               puts e.message
           rescue DejaEmprunte => d
               puts d.message
-          rescue Indsiponible => c
+          rescue Indisponible => c
               puts c.message
           rescue MaxEmpruntes => m
               puts m.message
+          rescue PasEmpruntable => pa
+              puts pa.message
           end
 
         when 18
             print "Saisir l'id d'adhérent: "
             id = gets.chomp.to_i
-            a = bib.get_adherent(id)
-            a.afficherEmpruntes()
+            begin
+              a = bib.get_adherent(id)
+              a.afficherEmpruntes()
+            rescue  Inconnu => e
+              puts e.message
+            rescue DejaEmprunte => d
+                puts d.message
+            rescue Indisponible => c
+                puts c.message
+            rescue MaxEmpruntes => m
+                puts m.message
+            rescue PasEmpruntable => pa
+                puts pa.message
+            end
             
         when 19
-          bib.afficherFonds()
+          begin
+            bib.afficherFonds()
+          rescue  Inconnu => e
+            puts e.message
+          rescue DejaEmprunte => d
+              puts d.message
+          rescue Indisponible => c
+              puts c.message
+          rescue MaxEmpruntes => m
+              puts m.message
+          rescue PasEmpruntable => pa
+              puts pa.message
+          end
 
         when 20
-          bib.save()
-          puts "Sauvegarde Avec succéss"
+          begin
+            bib.save()
+            puts "Sauvegarde Avec succéss"
+          rescue  Inconnu => e
+            puts e.message
+          rescue DejaEmprunte => d
+              puts d.message
+          rescue Indisponible => c
+              puts c.message
+          rescue MaxEmpruntes => m
+              puts m.message
+          rescue PasEmpruntable => pa
+              puts pa.message
+          end
 
         when 21
-          bib.load()
-          puts "Chargement Avec succéss"  
+          begin
+            bib.load()
+            puts "Chargement Avec succéss" 
+          rescue  Inconnu => e
+            puts e.message
+          rescue DejaEmprunte => d
+              puts d.message
+          rescue Indisponible => c
+              puts c.message
+          rescue MaxEmpruntes => m
+              puts m.message
+          rescue PasEmpruntable => pa
+              puts pa.message
+          end 
         
         when 22
-          print "Entrez le mot que vous voulez: "
-          mot=gets.chomp.downcase
-          mon_hash =Hash.new(0)
-          text=File.read("livre.txt");
-          mon_tab=text.downcase.tr(".,!:","").split(" ")
-          mon_tab.each{ |i|
-            mon_hash[i]+=1
-          }
-          puts "Le mot #{mot} apparait "+mon_hash[mot].to_s+ " fois"
+          begin
+            print "Entrez le mot que vous voulez: "
+            mot=gets.chomp.downcase
+            mon_hash =Hash.new(0)
+            text=File.read("livre.txt")
+            mon_tab=text.downcase.tr(".,!:","").split(" ")
+            mon_tab.each{ |i|
+              mon_hash[i]+=1
+            }
+            puts "Le mot #{mot} apparait "+mon_hash[mot].to_s+ " fois"
+          rescue  Inconnu => e
+            puts e.message
+          rescue DejaEmprunte => d
+              puts d.message
+          rescue Indisponible => c
+              puts c.message
+          rescue MaxEmpruntes => m
+              puts m.message
+          rescue PasEmpruntable => pa
+              puts pa.message
+          end
 
         when 23
-          text=File.read("livre.txt");
-          mon_hash =Hash.new(0)
-          mon_tab=text.downcase.tr(".,!:","").split(" ")
-          mon_tab.each{ |i|
-              mon_hash[i]+=1
-          }
-          result=mon_hash.sort_by {|key,value| value}.reverse.to_h
-          result.keys[0..9].each{|key| puts "#{key}=>#{result[key]}"}
+          begin
+            text=File.read("livre.txt");
+            mon_hash =Hash.new(0)
+            mon_tab=text.downcase.tr(".,!:","").split(" ")
+            mon_tab.each{ |i|
+                mon_hash[i]+=1
+            }
+            result=mon_hash.sort_by {|key,value| value}.reverse.to_h
+            result.keys[0..9].each{|key| puts "#{key}=>#{result[key]}"}
+          rescue  Inconnu => e
+            puts e.message
+          rescue DejaEmprunte => d
+              puts d.message
+          rescue Indisponible => c
+              puts c.message
+          rescue MaxEmpruntes => m
+              puts m.message
+          rescue PasEmpruntable => pa
+              puts pa.message
+          end
+
       end
       Test.main()
     end
 
 
     def Menus::menu1
-      puts "-----------------------------Menu1--------------------------------------"
+      puts "-------------------------------Menu Principale--------------------------------------"
       puts "Accueil: "
       puts "1-Sous Menu (manuel)"
       puts "2-Lancer tous le sous menu"
@@ -344,23 +428,23 @@ module Menus
       i = choice.to_i
     end
 
-
+    # automatique test hard coded
     def Menus::test(bib)
-      adherent = Adherent.new("Ayoub","Ed-dafali","Etudiant")
-      livre = Livre.new("SDFG65S","Deduction","Sherlock Holmes",true)
-      pc = PC.new(false,"HP","Windows",true)
+      adherent = Adherent.new("Zbiri","Walid","Etudiant")
+      livre = Livre.new("12687","ReactJS","Oreilly",true)
+      pc = PC.new(false,"HP","Linux",true)
       bib.add_adherent(adherent)
       puts "Adhérent #{adherent.to_s} est ajouté"
-      bib.add_Document(livre)
-      puts "Livre #{livre.to_s} ajouté"
       bib.add_Materiel(pc)
       puts "PC #{pc.to_s} ajouté"
-      puts "Liste des adhérents:"
-      puts bib.adherents.inspect
+      bib.add_Document(livre)
+      puts "Livre #{livre.to_s} ajouté"
       puts "Liste des documents"
       puts bib.documents.inspect
       puts "Liste des ordinateurs"
       puts bib.materiels.inspect
+      puts "Liste des adhérents:"
+      puts bib.adherents.inspect
       adherent.emprunter(livre,bib)
       puts "#{livre.to_s} emprunté par l'adhérent #{adherent.to_s }"
       adherent.rendre(livre,bib)

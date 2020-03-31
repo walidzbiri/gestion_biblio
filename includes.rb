@@ -1,3 +1,4 @@
+# Un ensemble de gems et fichiers pour séparer mon travail
 gem 'soap4r-ruby1.9'
 gem 'logger-application'
 require 'biblio'

@@ -1,8 +1,9 @@
+# Un ensemble d'Exceptions qui hérite depuis la classe RuntimeError
 class Inconnu  < RuntimeError
 
 end
 
-class Indsiponible < RuntimeError
+class Indisponible < RuntimeError
 
 end
 

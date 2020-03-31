@@ -1,3 +1,4 @@
+# module utlisé comme namespace
 module T
     BIB = Biblio.new
 end
@@ -5,7 +6,7 @@ end
 class Test
   include T
   def self.main
-      bib = T::BIB
+      bib = T::BIB # access to BIB variable in namespace T
       fini = false
       while !fini
         # Menu 1
@@ -17,7 +18,7 @@ class Test
               Menus.test(bib)
           when 3
               server = MyServer.new('RubyServer','urn:ruby:menu2','localhost',33733)
-              server.start
+              server.start# server start listening
           when 4
               fini = true
         end

@@ -4,6 +4,7 @@ class Document
     def initialize(titre)
       @titre = titre
     end
+
     def to_s
        "Document : #{@titre};"
     end
@@ -12,6 +13,7 @@ end
 
 class Revue < Document
     attr_accessor :numero
+
     def initialize(titre, numero )
         super(titre)
         @numero = numero
@@ -27,6 +29,7 @@ end
 
 class Volume < Document
     attr_accessor :auteur
+
     def initialize(titre, auteur)
       super(titre)
       @auteur=auteur
@@ -42,6 +45,7 @@ end
 
 class BandeDessiner < Volume
     attr_accessor :dessinateur
+
     def initialize(titre, auteur , dessinateur)
       super(titre, auteur)
       @dessinateur = dessinateur
@@ -57,8 +61,9 @@ end
 
 class Dictionnnaire < Volume
     attr_accessor :theme
+
     def initialize(titre, auteur , theme )
-      super(isbn , titre, auteur)
+      super(titre, auteur)
       @theme = theme
     end
   
@@ -69,11 +74,15 @@ class Dictionnnaire < Volume
   
 end
 
+
 class Livre < Volume
+    # assurer la fonctionnalité d'une interface en utilisant un module Empruntable
     include Empruntable
-    
+    @@compteur=0
     attr_accessor :isbn,:disponibilite
-    def initialize(isbn,titre, auteur, disponibilite = true)
+
+    def initialize(titre, auteur, disponibilite,isbn=@@compteur)
+      @@compteur+=1
       super(titre, auteur)
       @disponibilite=disponibilite
       @isbn=isbn

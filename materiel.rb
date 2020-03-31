@@ -1,13 +1,13 @@
 class Materiel
-    @@id = 0
+    @@compteur = 0
     attr_accessor :enPanne, :id
   
     def self.current_id
-      @@id
+      @@compteur
     end
   
     def initialize(enPanne = false)
-      @@id += 1
+      @@compteur += 1
       @id = Materiel.current_id
       @enPanne = enPanne
     end
@@ -21,10 +21,12 @@ Os = ["Linux", "Windows"]
 
 class PC < Materiel
   include Empruntable
+
   attr_accessor :marque, :os,:disponibilite
 
-  def initialize(enPanne, marque, os, disponibilite)
+  def initialize(enPanne, marque, os, disponibilite,id=@@compteur)
     super(enPanne)
+    @id=id
     @marque = marque
     @disponibilite=disponibilite
     if Os.include?(os)
@@ -33,6 +35,7 @@ class PC < Materiel
       @os = "Linux"
     end
   end
+  
   def isDisponible?
     @disponibilite
   end

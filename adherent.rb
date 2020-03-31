@@ -1,29 +1,30 @@
 $LOAD_PATH << File.dirname(__FILE__)
 require 'exceptions'
-
+require 'customized_array'
 status = ["Etudiant", "Enseignant"]
 
 class Adherent
-    @@id=0
+    @@compteur=0
     def self.compteur_id
-        @@id
+        @@compteur
     end
     attr_accessor :nom,:prenom,:statut,:empruntes,:id
+
     def initialize(nom,prenom,statut)
-        @@id+=1
+        @@compteur+=1
         @id=Adherent.compteur_id
         @prenom = prenom
         @statut = statut
-        @empruntes = []
+        @empruntes = CustomizedArray.new()
         @nom=nom
     end
 
     def emprunter(item,biblio)
         if(!biblio.adherents.include?(self))
-            raise(Inconnu, "You are not an adherent to our Library")
+            raise(Inconnu, "Vous êtes pas un adherent")
         else
-            if(@empruntes.length>=5)
-                raise MaxEmpruntes, "You have reached the limited Times"
+            if(@empruntes.length>5)
+                raise MaxEmpruntes, "Vous avez atteint le maximum"
             else
                 if(biblio.est_dans_biblio(item))
                     if(item.isDisponible?)
@@ -31,28 +32,31 @@ class Adherent
                         biblio.emprunts[item]=self
                         item.disponibilite=false
                     else
-                        raise(DejaEmprunte, "This item is unavailable right now")
+                        raise(DejaEmprunte, "Cet element n'es pas disponible")
                     end
                 else
-                    raise(Indsiponible, "This item does not exists in Library")
+                    raise(Indsiponible, "Cet element n'est pas dans la biblio")
                 end
             end
         end
     end
 
+    
     def rendre(item,biblio)
         if(!biblio.adherents.include?(self))
-            raise(Inconnu, "You are not an adherent to our Library")
+            raise(Inconnu, "Vous êtes pas un adherent")
         else
             if(@empruntes.include?(item))
-                @empruntes.delete(item)
+                @empruntes.delete(item)###### overloading
                 biblio.emprunts.delete(item)
                 item.disponibilite=true
             else
-                raise(PasEmpruntable,"This #{item.to_s} is not borrowed yet!")
+                raise(PasEmpruntable,"Cet element #{item.to_s} n'est pas encore emprunté!")
             end
         end
     end
+
+
 
     def afficherEmpruntes()
         @empruntes.each { |item| puts item.to_s }

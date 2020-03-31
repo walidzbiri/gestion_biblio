@@ -5,15 +5,19 @@ require 'document'
 require 'materiel'
 require 'csv'
 require 'exceptions'
+require 'customized_array'
+require 'mon_hash'
 
 class Biblio
     attr_accessor :adherents,:documents,:materiels,:emprunts
-    def initialize(adherents=[],documents=[],materiels=[])  
+
+    def initialize(adherents=CustomizedArray.new,documents=CustomizedArray.new,materiels=CustomizedArray.new)  
         @adherents=adherents
         @materiels=materiels
         @documents=documents
-        @emprunts={}
+        @emprunts=MonHash.new()
     end
+
 
     def get_adherent(id)
         adh = @adherents.select{ |ad| ad.id == id}.first
@@ -59,7 +63,6 @@ class Biblio
             @emprunts.each{|emprunt,adherent|
                 if (ad.id==adherent.id)
                     mes_emprunts_obj<< emprunt
-                
                 end
             }
             mes_emprunts_str=[]
@@ -87,29 +90,26 @@ class Biblio
     def load()
         livres = CSV.parse(File.read("livres.csv"), headers: true)
         livres.each{|livre|
-            #puts "#{row["ISBN"]} #{row["Titre"]} #{row["Dispo"]} #{row["Auteur"]}"
-            @documents<< Livre.new(livre["ISBN"],livre["Titre"],livre["Auteur"],livre["Dispo"])
+            @documents<< Livre.new(livre["Titre"],livre["Auteur"],livre["Dispo"],livre["ISBN"].to_i)
             
         }
 
         pcs = CSV.parse(File.read("pc.csv"), headers: true)
         pcs.each{|pc|
-            #puts "#{row["id"]} #{row["marque"]} #{row["os"]} #{row["disponibilite"]} #{row["enPanne"]}"
-            @materiels<< PC.new(pc["enPanne"],pc["marque"],pc["os"],pc["disponibilite"])
+            @materiels<< PC.new(pc["enPanne"],pc["marque"],pc["os"],pc["disponibilite"],pc["id"].to_i)
         }
 
         adherents = CSV.parse(File.read("adherents.csv"), headers: true)
         i=0
         adherents.each{|ad|
-            #puts "#{row["id"]} #{row["marque"]} #{row["os"]} #{row["disponibilite"]} #{row["enPanne"]}"
             @adherents<< Adherent.new(ad["Nom"],ad["Prenom"],ad["Statut"])
             livres=[]
             pcs=[]
             ad["Emprunts"].split("//").each{|emp|
                 if emp.start_with?('Livre')
-                    livres<< Livre.new(emp[/ISBN: (.*?),/m, 1],emp[/Titre: (.*?),/m, 1],emp[/Auteur: (.*?),/m, 1],emp[/Disponible: (.*?),/m, 1])
+                    livres<< Livre.new(emp[/Titre: (.*?),/m, 1],emp[/Auteur: (.*?),/m, 1],emp[/Disponible: (.*?),/m, 1],emp[/ISBN: (.*?),/m, 1].to_i)
                 else
-                    pcs<< PC.new(emp[/panne: (.*?),/m, 1],emp[/Marque: (.*?),/m, 1],emp[/OS: (.*?),/m, 1],emp[/Disponible: (.*?),/m, 1])
+                    pcs<< PC.new(emp[/panne: (.*?),/m, 1],emp[/Marque: (.*?),/m, 1],emp[/OS: (.*?),/m, 1],emp[/Disponible: (.*?),/m, 1],emp[/id: (.*?),/m, 1].to_i)
                 end
             }
             livres.each{|l|
@@ -120,7 +120,7 @@ class Biblio
                 @adherents[i].empruntes<< pc
                 @emprunts[pc]=@adherents[i]
             }
-            i+=1######################""
+            i+=1
         }
 
     end
@@ -155,20 +155,25 @@ class Biblio
 
     def supprimez_adherent(adherent)
         if @adherents.include? adherent
-          adherent.empruntes.each{|item|
-            adherent.rendre(self, item)
+            adherent.empruntes.each{|item|
+                adherent.empruntes.delete(item)
+                self.emprunts.delete(item)
+                item.disponibilite=true
             }
-          @adherents.delete adherent
+            @adherents.delete adherent
         else
             raise Inconnu, "Adherent non valide"
         end
     end
 
 
-
-
     def supprimez_document(doc)
         if @documents.include? doc
+            @emprunts.each{|item,adh|
+                if(item.equal?(doc))
+                    adh.rendre(doc,self)
+                end
+            }
           @documents.delete doc
         else
             raise Inconnu, "Document non valide"
@@ -178,6 +183,11 @@ class Biblio
 
     def supprimez_materiel(mat)
         if @materiels.include? mat
+            @emprunts.each{|item,adh|
+                if(item.equal?(mat))
+                    adh.rendre(mat,self)
+                end
+            }
           @materiels.delete mat
         else
             raise Inconnu, "Materiel non valide"
@@ -187,12 +197,12 @@ class Biblio
 
     def rechercherTitre(titre)
         found=[]
-        @@documents.each{|doc|
+        @documents.each{|doc|
             if(doc.titre.eql?(titre))
                 found<<doc
             end
         }
-        return found
+        found
     end
 
 
